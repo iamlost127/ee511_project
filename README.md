@@ -1,2 +1,2 @@
-# ee511_project
-An AI agent to play FlappyBird
+# Flappy Bot
+An AI agent to play Flappy Bird
