@@ -5,10 +5,11 @@ import sys
 import pygame
 from pygame.locals import *
 
-import flappybot as bot
+import flappybot
 
 BOT = True
 TRAIN = True
+bot = None
 
 FPS = 30
 SCREENWIDTH  = 288
@@ -59,8 +60,10 @@ except NameError:
     xrange = range
 
 
-def main(bot = 1, train = 1):
-    global BOT, TRAIN, SCREEN, FPSCLOCK
+def main():
+    global BOT, TRAIN, SCREEN, FPSCLOCK, bot
+
+    bot = flappybot.flappybot()
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -251,11 +254,12 @@ def mainGame(movementInfo):
                     playerFlapped = True
                     SOUNDS['wing'].play()
 
+        delX = lowerPipes[0]['x'] - playerx
+        delY1 = lowerPipes[0]['y'] - playery
+        delY2 = lowerPipes[1]['y'] - playery
+
         if BOT:
-            delX = lowerPipes[0]['x'] - playerx
-            delY1 = lowerPipes[0]['y'] - playery
-            delY2 = lowerPipes[1]['y'] - playery
-            if playery > -2 * IMAGES['player'][0].get_height() and bot.act(delX, delY1, delY2, playerVelY, train=TRAIN):
+            if playery > -2 * IMAGES['player'][0].get_height() and bot.act(delX, delY1, delY2, playerVelY, True):
                 playerVelY = playerFlapAcc
                 playerFlapped = True
                 SOUNDS['wing'].play()
@@ -264,6 +268,7 @@ def mainGame(movementInfo):
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
         if crashTest[0]:
+            bot.act(delX, delY1, delY2, playerVelY, False)
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],
@@ -372,6 +377,9 @@ def showGameOverScreen(crashInfo):
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
                 if playery + playerHeight >= BASEY - 1:
                     return
+
+        if BOT and playery + playerHeight >= BASEY - 1:
+            return
 
         # player y shift
         if playery + playerHeight < BASEY - 1:
