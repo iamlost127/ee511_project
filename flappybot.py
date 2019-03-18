@@ -5,7 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 from keras import optimizers
 
-MAX_EPSILON_ITERS = 100000
+MAX_EPSILON_ITERS = 10000
 MIN_EPSILON = 0.1
 MEM_SIZE = 100
 BATCH_SIZE = 32
@@ -69,6 +69,8 @@ class flappybot:
         if status:
             if delX < 0.2 and delY1 > 0.05 and delY1 < 0.35:
                 reward = 10
+            elif delY1 > 0.05 and delY1 < 0.35:
+                reward = 5
             else:
                 reward = 1
         else:
