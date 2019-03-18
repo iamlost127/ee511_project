@@ -5,7 +5,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras import optimizers
 
-MAX_EPSILON_ITERS = 10000
+MAX_EPSILON_ITERS = 30000
 MEM_SIZE = 1000
 BATCH_SIZE = 32
 
@@ -40,8 +40,7 @@ class flappybot:
         self.prev_action = 1
 
     def remember(self, state, action, reward, state_n):
-        self.memory.pop()
-        self.memory.appendleft((state, action, reward, state_n))
+        self.memory.append((state, action, reward, state_n))
 
     def replay(self):
         batch = random.sample(self.memory, BATCH_SIZE)
@@ -66,17 +65,17 @@ class flappybot:
         reward = 1 if status else -1000
 
         # Epsilon-greedy strategy for first few iterations
-        if self.iter_count < MAX_EPSILON_ITERS and random.random() < self.epsilon:
-            self.iter_count += 1
-
+        if random.random() < self.epsilon:
             action = 0 if random.random() < 0.5 else 1
-
             self.iter_count += 1
-            self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
         else:
             q_vals = self.model.predict(curr_state)[0]
-            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count)
             action = 0 if q_vals[0] > q_vals[1] else 1
+            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count)
+
+        if self.iter_count < MAX_EPSILON_ITERS:
+            self.iter_count += 1
+            self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
 
         if train:
             self.remember(self.prev_state, self.prev_action, reward, curr_state)
