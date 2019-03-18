@@ -1,53 +1,87 @@
 import random
 import numpy as np
+from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense, Activation
-from keras.utils import plot_model
+from keras import optimizers
 
-MAX_EPSILON_ITER = 100
+MAX_EPSILON_ITERS = 10000
+MEM_SIZE = 1000
+BATCH_SIZE = 32
 
 class flappybot:
-    model = None
-    prev_state = None
-    epsilon = 0.9
-    iter_count = 0.0
-
     def __init__(self):
+        # parameters
+        self.epsilon = 1.0
+        self.gamma = 0.95
+        self.iter_count = 0
+        self.lr = 0.001
+
+        # Initialize memory
+        self.memory = deque(maxlen=MEM_SIZE)
+        for i in range(MEM_SIZE):
+            rand_state = np.random.rand(4, 1)
+            rand_action = 1 if random.random() > 0.5 else 0
+            rand_reward = random.choice([1, -1000])
+            rand_state_n = np.random.rand(4, 1)
+            self.memory.append((rand_state, rand_action, rand_reward, rand_state_n))
+
+        # model
         self.model = Sequential()
-        self.model.add(Dense(units=16, activation='relu', input_dim=4))
-        self.model.add(Dense(units=64, activation='relu'))
-        self.model.add(Dense(units=2, activation='softmax'))
-        self.model.compile(optimizer='sgd', loss='mse')
+        self.model.add(Dense(units=24, activation='relu'))
+        self.model.add(Dense(units=24, activation='relu'))
+        self.model.add(Dense(units=2, activation='linear'))
 
-        self.prev_state = np.array([[0.5, 0.5, 0.5, 0.5]])
-        self.model.fit(self.prev_state, np.array([[1, 0]]))
+        # optimizer
+        optimizer = optimizers.Adam(lr=self.lr)
+        self.model.compile(optimizer=optimizer, loss='mse')
 
-    def act(self, delX, delY1, delY2, vel, status):
-        delX_norm = delX/450
-        delY1_norm = delY1/250
-        delY2_norm = delY2/250
-        vel_norm = vel/10
-        curr_state = np.array([[delX_norm, delY1_norm, delY2_norm, vel_norm]])
+        self.prev_state = np.random.rand(4, 1)
+        self.prev_action = 1
 
-        reward = 0.001 if status else -1
-        if not status: print("crashed")
+    def remember(self, state, action, reward, state_n):
+        self.memory.pop()
+        self.memory.appendleft((state, action, reward, state_n))
 
-        q_vals = self.model.predict(curr_state)[0]
-        q_action = 1 if q_vals[1] > q_vals[0] else 0 # 1=flap; 0=don't flap
+    def replay(self):
+        batch = random.sample(self.memory, BATCH_SIZE)
+        for (state, action, reward, state_n) in batch:
+            target = reward
+            if reward == 1:
+                target = reward + self.gamma * np.amax(self.model.predict(state_n)[0])
 
-        act_random = random.random() > self.epsilon
-        rand_action = 1 if random.random() > 0.9 else 0
+            target_f = self.model.predict(state)
+            target_f[0][action] = target
+            self.model.fit(state, target_f, epochs=1, verbose=0)
 
-        action = rand_action if act_random else q_action
+    def act(self, delX, delY1, delY2, vel, status, train=True):
+        # Current state
+        delX_norm = delX/500
+        delY1_norm = delY1/500
+        delY2_norm = delY2/500
+        vel_norm = vel/20
+        curr_state = np.array([delX_norm, delY1_norm, delY2_norm, vel_norm])
+        
+        # Reward for previous action
+        reward = 1 if status else -1000
 
-        prev_q_vals = self.model.predict(self.prev_state)[0]
-        prev_action = 1 if prev_q_vals[1] > prev_q_vals[0] else 0
+        # Epsilon-greedy strategy for first few iterations
+        if self.iter_count < MAX_EPSILON_ITERS and random.random() < self.epsilon:
+            self.iter_count += 1
 
-        pred_q_vals = np.array([reward, reward]) + 0.1*(q_vals)
-        self.model.fit(self.prev_state, np.array([pred_q_vals]))
+            action = 0 if random.random() < 0.5 else 1
 
-        prev_state = curr_state
-        if self.iter_count < MAX_EPSILON_ITER: self.iter_count += 1
-        self.epsilon = self.epsilon * (1 - (self.iter_count/MAX_EPSILON_ITER))
-         
+            self.iter_count += 1
+            self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
+        else:
+            q_vals = self.model.predict(curr_state)[0]
+            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count)
+            action = 0 if q_vals[0] > q_vals[1] else 1
+
+        if train:
+            self.remember(self.prev_state, self.prev_action, reward, curr_state)
+            self.replay()
+            self.prev_state = curr_state
+            self.prev_action = action
+
         return (action == 1)

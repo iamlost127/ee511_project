@@ -9,12 +9,14 @@ import flappybot
 
 BOT = True
 TRAIN = True
+DISPLAY = True#False
 bot = None
+max_score = 0
 
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
-PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
+PIPEGAPSIZE  = 200 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
@@ -180,7 +182,6 @@ def showWelcomeAnimation():
         # Don't wait if it's the bot playing the game
         if BOT:
             # make first flap sound and return values for mainGame
-            SOUNDS['wing'].play()
             return {
                 'playery': playery + playerShmVals['val'],
                 'basex': basex,
@@ -201,8 +202,9 @@ def showWelcomeAnimation():
         SCREEN.blit(IMAGES['message'], (messagex, messagey))
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        if not BOT or DISPLAY:
+            pygame.display.update()
+            FPSCLOCK.tick(FPS)
 
 
 def mainGame(movementInfo):
@@ -258,11 +260,10 @@ def mainGame(movementInfo):
         delY1 = lowerPipes[0]['y'] - playery
         delY2 = lowerPipes[1]['y'] - playery
 
-        if BOT:
-            if playery > -2 * IMAGES['player'][0].get_height() and bot.act(delX, delY1, delY2, playerVelY, True):
+        if BOT and bot.act(delX, delY1, delY2, playerVelY, True):
+            if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
-                SOUNDS['wing'].play()
 
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
@@ -346,11 +347,14 @@ def mainGame(movementInfo):
         playerSurface = pygame.transform.rotate(IMAGES['player'][playerIndex], visibleRot)
         SCREEN.blit(playerSurface, (playerx, playery))
 
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
+        if not BOT or DISPLAY:
+            pygame.display.update()
+            FPSCLOCK.tick(FPS)
 
 
 def showGameOverScreen(crashInfo):
+    global max_score
+
     """crashes the player down ans shows gameover image"""
     score = crashInfo['score']
     playerx = SCREENWIDTH * 0.2
@@ -365,10 +369,18 @@ def showGameOverScreen(crashInfo):
 
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
-    # play hit and die sounds
-    SOUNDS['hit'].play()
-    if not crashInfo['groundCrash']:
-        SOUNDS['die'].play()
+    if BOT:
+        if score > max_score:
+            max_score = score
+
+        print("Score =", score)
+        print("Max score =", max_score)
+    else:
+        # play hit and die sounds
+        SOUNDS['hit'].play()
+        if not crashInfo['groundCrash']:
+            SOUNDS['die'].play()
+
 
     while True:
         for event in pygame.event.get():
@@ -408,8 +420,9 @@ def showGameOverScreen(crashInfo):
         playerSurface = pygame.transform.rotate(IMAGES['player'][1], playerRot)
         SCREEN.blit(playerSurface, (playerx,playery))
 
-        FPSCLOCK.tick(FPS)
-        pygame.display.update()
+        if not BOT or DISPLAY:
+            FPSCLOCK.tick(FPS)
+            pygame.display.update()
 
 
 def playerShm(playerShm):
