@@ -268,7 +268,8 @@ def mainGame(movementInfo):
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
         if crashTest[0]:
-            bot.act(delX, delY1, delY2, playerVelY, False)
+            if BOT: bot.act(delX, delY1, delY2, playerVelY, False)
+
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],
