@@ -28,9 +28,11 @@ class flappybot:
 
         # model
         self.model = Sequential()
-        self.model.add(Dense(units=24, activation='relu'))
-        self.model.add(Dense(units=24, activation='relu'))
-        self.model.add(Dense(units=2, activation='linear'))
+        self.model.add(Dense(units=64, activation='relu'))
+        self.model.add((Dropout(0.1))
+        self.model.add(Dense(units=64, activation='relu'))
+        self.model.add((Dropout(0.1))
+        self.model.add(Dense(units=2, activation='softmax'))
 
         # optimizer
         optimizer = optimizers.Adam(lr=self.lr)
@@ -75,7 +77,7 @@ class flappybot:
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
-            self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
+            self.epsilon *= (1 - (self.iter_count/(1.1 * MAX_EPSILON_ITERS)))
 
         if train:
             self.remember(self.prev_state, self.prev_action, reward, curr_state)
