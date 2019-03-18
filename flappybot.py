@@ -29,9 +29,9 @@ class flappybot:
         # model
         self.model = Sequential()
         self.model.add(Dense(units=64, activation='relu'))
-        self.model.add((Dropout(0.1))
+        self.model.add(Dropout(0.1))
         self.model.add(Dense(units=64, activation='relu'))
-        self.model.add((Dropout(0.1))
+        self.model.add(Dropout(0.1))
         self.model.add(Dense(units=2, activation='softmax'))
 
         # optimizer
@@ -73,7 +73,7 @@ class flappybot:
         else:
             q_vals = self.model.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1
-            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count)
+            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count, "epsilon =", self.epsilon, "state =", curr_state)
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
