@@ -7,7 +7,7 @@ from keras import optimizers
 
 MAX_EPSILON_ITERS = 100000
 MIN_EPSILON = 0.1
-MEM_SIZE = 1000
+MEM_SIZE = 100
 BATCH_SIZE = 32
 
 class flappybot:
@@ -21,16 +21,16 @@ class flappybot:
         # Initialize memory
         self.memory = deque(maxlen=MEM_SIZE)
         for i in range(MEM_SIZE):
-            rand_state = np.random.rand(4, 1)
+            rand_state = np.random.rand(1, 4)
             rand_action = 1 if random.random() > 0.5 else 0
             rand_reward = random.choice([1, -1000])
-            rand_state_n = np.random.rand(4, 1)
+            rand_state_n = np.random.rand(1, 4)
             self.memory.append((rand_state, rand_action, rand_reward, rand_state_n))
 
         # model
         self.model = Sequential()
-        self.model.add(Dense(units=64, activation='relu'))
-        self.model.add(Dropout(0.1))
+        self.model.add(Dense(units=64, activation='relu', input_dim=4))
+        self.model.add(Dropout(0.05))
         self.model.add(Dense(units=64, activation='relu'))
         self.model.add(Dropout(0.1))
         self.model.add(Dense(units=2, activation='softmax'))
@@ -39,7 +39,7 @@ class flappybot:
         optimizer = optimizers.Adam(lr=self.lr)
         self.model.compile(optimizer=optimizer, loss='mse')
 
-        self.prev_state = np.random.rand(4, 1)
+        self.prev_state = np.random.rand(1, 4)
         self.prev_action = 1
 
     def remember(self, state, action, reward, state_n):
@@ -62,10 +62,18 @@ class flappybot:
         delY1_norm = delY1/500
         delY2_norm = delY2/500
         vel_norm = vel/20
-        curr_state = np.array([delX_norm, delY1_norm, delY2_norm, vel_norm])
+        curr_state = np.array([[delX_norm, delY1_norm, delY2_norm, vel_norm]])
         
         # Reward for previous action
         reward = 1 if status else -1000
+        if status:
+            if delX < 0.2 and delY1 > 0.05 and delY1 < 0.35:
+                reward = 10
+            else:
+                reward = 1
+        else:
+            reward = -1000
+
 
         # Epsilon-greedy strategy for first few iterations
         if random.random() < self.epsilon:
