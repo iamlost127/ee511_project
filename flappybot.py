@@ -2,10 +2,11 @@ import random
 import numpy as np
 from collections import deque
 from keras.models import Sequential
-from keras.layers import Dense, Activation
+from keras.layers import Dense, Activation, Dropout
 from keras import optimizers
 
-MAX_EPSILON_ITERS = 30000
+MAX_EPSILON_ITERS = 100000
+MIN_EPSILON = 0.1
 MEM_SIZE = 1000
 BATCH_SIZE = 32
 
@@ -77,7 +78,8 @@ class flappybot:
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
-            self.epsilon *= (1 - (self.iter_count/(1.1 * MAX_EPSILON_ITERS)))
+            if self.epsilon > MIN_EPSILON:
+                self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
 
         if train:
             self.remember(self.prev_state, self.prev_action, reward, curr_state)
