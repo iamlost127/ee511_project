@@ -8,9 +8,9 @@ from pygame.locals import *
 import flappybot
 
 BOT = True
-TRAIN = True
+TRAIN = False
 DISPLAY = False
-LOAD_MODEL = False
+LOAD_MODEL = True
 
 bot = None
 max_score = 0
@@ -264,7 +264,7 @@ def mainGame(movementInfo):
         delY1 = lowerPipes[0]['y'] - playery
         delY2 = lowerPipes[1]['y'] - playery
 
-        if BOT and bot.act(delX, delY1, delY2, playerVelY, True, score):
+        if BOT and bot.act(delX, delY1, playerVelY, True, score):
             #print("lY =", lowerPipes[0]['y'], "uY =", upperPipes[0]['y'], "pY =", playery, "delY =", delY1)
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
@@ -275,7 +275,7 @@ def mainGame(movementInfo):
                                upperPipes, lowerPipes)
         if crashTest[0]:
             if BOT: 
-                bot.act(delX, delY1, delY2, playerVelY, False, score)
+                bot.act(delX, delY1, playerVelY, False, score)
 
             return {
                 'y': playery,

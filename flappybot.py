@@ -13,7 +13,7 @@ MEM_SIZE = 1000
 BATCH_SIZE = 32
 IN_SAMPLES = 4
 
-INPUT_DIM = 4*IN_SAMPLES
+INPUT_DIM = 3*IN_SAMPLES
 
 class flappybot:
     def __init__(self, load, train):
@@ -28,10 +28,10 @@ class flappybot:
         # Initialize memory
         self.memory = deque(maxlen=MEM_SIZE)
         for i in range(MEM_SIZE):
-            rand_state = np.random.rand(1, 4)
+            rand_state = np.random.rand(1, 3)
             rand_action = 1 if random.random() > 0.5 else 0
             rand_reward = random.choice([1, -1000])
-            rand_state_n = np.random.rand(1, 4)
+            rand_state_n = np.random.rand(1, 3)
             self.memory.append((rand_state, rand_action, rand_reward, rand_state_n))
 
         if load:
@@ -49,7 +49,7 @@ class flappybot:
 
         self.train = train
 
-        self.prev_state = np.random.rand(1, 4)
+        self.prev_state = np.random.rand(1, 3)
         self.prev_action = 1
 
     def remember(self, state, action, reward, state_n):
@@ -92,20 +92,19 @@ class flappybot:
     def learn(self, sample, target):
         self.model.fit(self.history(sample), target, epochs=1, verbose=0)
 
-    def act(self, delX, delY1, delY2, vel, status, score):
+    def act(self, delX, delY1, vel, status, score):
         # Current state
         delX_norm = delX/500
         delY1_norm = delY1/512
-        delY2_norm = delY2/512
         vel_norm = vel/20
-        curr_state = np.array([[delX_norm, delY1_norm, delY2_norm, vel_norm]])
+        curr_state = np.array([[delX_norm, delY1_norm, vel_norm]])
         
         # Reward for previous action
         if status:
             if delX_norm < 0.2 and delY1_norm > 0.05 and delY1_norm < 0.35:
-                reward = 250
+                reward = 1#250
             elif delY1_norm > 0.05 and delY1_norm < 0.35:
-                reward = 50
+                reward = 1#50
             else:
                 reward = 1
         else:
