@@ -94,16 +94,13 @@ class flappybot:
 
     def act(self, delX, delY1, vel, status, score):
         # Current state
-        delX_norm = delX/288
-        delY1_norm = delY1/512
-        vel_norm = vel/10
-        curr_state = np.array([[delX_norm, delY1_norm, vel_norm]])
+        curr_state = np.array([[delX, delY1, vel]])
         
         # Reward for previous action
         if status:
-            if delX_norm < 0.2 and delY1_norm > 0.05 and delY1_norm < 0.35:
+            if delX < 0.2 and delY1 > 0.05 and delY1 < 0.35:
                 reward = 1#250
-            elif delY1_norm > 0.05 and delY1_norm < 0.35:
+            elif delY1 > 0.05 and delY1 < 0.35:
                 reward = 1#50
             else:
                 reward = 1

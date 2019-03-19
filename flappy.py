@@ -260,9 +260,9 @@ def mainGame(movementInfo):
                     playerFlapped = True
                     SOUNDS['wing'].play()
 
-        delX = lowerPipes[0]['x'] - playerx
-        delY1 = lowerPipes[0]['y'] - playery
-        delY2 = lowerPipes[1]['y'] - playery
+        delX = (lowerPipes[0]['x'] - playerx) / SCREENWIDTH
+        delY1 = (lowerPipes[0]['y'] - playery) / SCREENHEIGHT
+        delY2 = (lowerPipes[1]['y'] - playery) / playerMaxVel
 
         if BOT and bot.act(delX, delY1, playerVelY, True, score):
             #print("lY =", lowerPipes[0]['y'], "uY =", upperPipes[0]['y'], "pY =", playery, "delY =", delY1)
