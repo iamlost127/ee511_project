@@ -11,7 +11,6 @@ BOT = True
 TRAIN = True
 DISPLAY = False
 LOAD_MODEL = True
-TRAIN = True
 
 bot = None
 max_score = 0

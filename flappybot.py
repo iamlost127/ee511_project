@@ -111,7 +111,7 @@ class flappybot:
 
 
         # Epsilon-greedy strategy for first few iterations
-        if random.random() < self.epsilon:
+        if self.train and random.random() < self.epsilon:
             action = 0 if random.random() < 0.7 else 1
             self.iter_count += 1
         else:
@@ -137,7 +137,7 @@ class flappybot:
     def save(self):
         self.model.save('flappybot.h5')
 
-        with open('scores.txt', 'w') as f:
+        with open('scores.txt', 'a') as f:
             for score in self.scores:
                 f.write("%s\n" % score)
         f.close()
