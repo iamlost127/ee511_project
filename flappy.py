@@ -10,6 +10,8 @@ import flappybot
 BOT = True
 TRAIN = True
 DISPLAY = True
+LOAD_MODEL = True
+
 bot = None
 max_score = 0
 
@@ -65,7 +67,7 @@ except NameError:
 def main():
     global BOT, TRAIN, SCREEN, FPSCLOCK, bot
 
-    bot = flappybot.flappybot()
+    bot = flappybot.flappybot(LOAD_MODEL, TRAIN)
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -168,6 +170,7 @@ def showWelcomeAnimation():
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                bot.save()
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
@@ -237,7 +240,7 @@ def mainGame(movementInfo):
     playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
     playerMaxVelY =  10   # max vel along Y, max descend speed
     playerMinVelY =  -8   # min vel along Y, max ascend speed
-    playerAccY    =   0.5   # players downward accleration
+    playerAccY    =   1   # players downward accleration
     playerRot     =  45   # player's rotation
     playerVelRot  =   3   # angular speed
     playerRotThr  =  20   # rotation threshold
@@ -248,6 +251,7 @@ def mainGame(movementInfo):
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                bot.save()
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
@@ -260,7 +264,7 @@ def mainGame(movementInfo):
         delY1 = lowerPipes[0]['y'] - playery
         delY2 = lowerPipes[1]['y'] - playery
 
-        if BOT and bot.act(delX, delY1, delY2, playerVelY, True):
+        if BOT and bot.act(delX, delY1, delY2, playerVelY, True, score):
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
@@ -269,7 +273,7 @@ def mainGame(movementInfo):
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
         if crashTest[0]:
-            if BOT: bot.act(delX, delY1, delY2, playerVelY, False)
+            if BOT: bot.act(delX, delY1, delY2, playerVelY, False, score)
 
             return {
                 'y': playery,
@@ -385,6 +389,7 @@ def showGameOverScreen(crashInfo):
     while True:
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                bot.save()
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
