@@ -22,7 +22,7 @@ class flappybot:
         self.gamma = 0.99
         self.iter_count = 0
         self.episode = 1
-        self.lr = 0.001
+        self.lr = 0.01
         self.scores = []
 
         # Initialize memory
@@ -44,7 +44,7 @@ class flappybot:
             self.model.add(Dense(units=2, activation='softmax'))
 
             # optimizer
-            optimizer = optimizers.RMSprop(lr=self.lr)
+            optimizer = optimizers.Adam(lr=self.lr)
             self.model.compile(optimizer=optimizer, loss='mse')
 
         self.train = train
@@ -116,10 +116,10 @@ class flappybot:
         else:
             q_vals = self.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1
-            print("Q = {:03.2f} {:03.2f}" % q_vals[0], q_vals[1], \
-                    "epsilon = {:07.6f}" % self.epsilon, "reward = {: 4d}" % reward, \
-                    "score = {:4d}" % score, "iter_count = {:6d}" % self.iter_count, \
-                    "episode = {:5d}" % self.episode, "state =", curr_state)
+            print("Q = {:03.2f} {:03.2f}".format(q_vals[0], q_vals[1]), \
+                    "epsilon = {:07.6f}".format(self.epsilon), "reward = {: 4d}".format(reward), \
+                    "score = {:4d}".format(score), "iter_count = {:6d}".format(self.iter_count), \
+                    "episode = {:5d}".format(self.episode), "state =", curr_state)
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
