@@ -67,7 +67,7 @@ class flappybot:
         # Reward for previous action
         reward = 1 if status else -1000
         if status:
-            if delX < 0.2 and delY1 > 0.05 and delY1 < 0.35:
+            if delX < 0.2 and delY1 > 0.1 and delY1 < 0.3:
                 reward = 10
             else:
                 reward = 1
@@ -77,7 +77,7 @@ class flappybot:
 
         # Epsilon-greedy strategy for first few iterations
         if random.random() < self.epsilon:
-            action = 0 if random.random() < 0.5 else 1
+            action = 0 if random.random() < 0.5 else 0
             self.iter_count += 1
         else:
             q_vals = self.model.predict(curr_state)[0]

@@ -9,7 +9,7 @@ import flappybot
 
 BOT = True
 TRAIN = True
-DISPLAY = False
+DISPLAY = True
 bot = None
 max_score = 0
 
@@ -237,7 +237,7 @@ def mainGame(movementInfo):
     playerVelY    =  -9   # player's velocity along Y, default same as playerFlapped
     playerMaxVelY =  10   # max vel along Y, max descend speed
     playerMinVelY =  -8   # min vel along Y, max ascend speed
-    playerAccY    =   1   # players downward accleration
+    playerAccY    =   0.5   # players downward accleration
     playerRot     =  45   # player's rotation
     playerVelRot  =   3   # angular speed
     playerRotThr  =  20   # rotation threshold
