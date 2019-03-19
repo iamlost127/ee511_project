@@ -7,7 +7,7 @@ from keras.layers import Dense, Activation, Dropout
 from keras import optimizers
 from keras.models import load_model
 
-MAX_EPSILON_ITERS = 100000
+MAX_EPSILON_ITERS = 20000
 MIN_EPSILON = 0.1
 MEM_SIZE = 1000
 BATCH_SIZE = 32
@@ -116,7 +116,7 @@ class flappybot:
         # Epsilon-greedy strategy for first few iterations
         q_vals = self.predict(curr_state)[0]
         if self.train and random.random() < self.epsilon:
-            action = 0 if random.random() < 0.95 else 1
+            action = 0 if random.random() < 0.97 else 1
             act_type = "action: rand" + str(action)
         else:
             action = 0 if q_vals[0] > q_vals[1] else 1
@@ -130,7 +130,7 @@ class flappybot:
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
             if self.epsilon > MIN_EPSILON:
-                self.epsilon *= (1 - ((self.iter_count/MAX_EPSILON_ITERS)**2))
+                self.epsilon *= (1 - ((self.iter_count / (np.sqrt(2)*MAX_EPSILON_ITERS))**2))
 
         if self.train:
             self.remember(self.prev_state, self.prev_action, reward, curr_state)
@@ -143,7 +143,7 @@ class flappybot:
     def save(self):
         self.model.save('flappybot.h5')
 
-        with open('scores.txt', 'a') as f:
+        with open('scores.txt', 'a+') as f:
             for score in self.scores:
                 f.write("%s\n" % score)
         f.close()

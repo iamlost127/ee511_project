@@ -9,7 +9,7 @@ import flappybot
 
 BOT = True
 TRAIN = True
-DISPLAY = False
+DISPLAY = True
 LOAD_MODEL = False
 
 bot = None
