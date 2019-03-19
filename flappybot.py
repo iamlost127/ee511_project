@@ -7,7 +7,7 @@ from keras.layers import Dense, Activation, Dropout
 from keras import optimizers
 from keras.models import load_model
 
-MAX_EPSILON_ITERS = 1000000
+MAX_EPSILON_ITERS = 100000
 MIN_EPSILON = 0.1
 MEM_SIZE = 1000
 BATCH_SIZE = 32
@@ -100,10 +100,10 @@ class flappybot:
         
         # Reward for previous action
         if status:
-            if delX < 0.2 and delY1 > 0.05 and delY1 < 0.35:
-                reward = 1#250
+            if delX < 0 and delY1 > 0.05 and delY1 < 0.35:
+                reward = 25
             elif delY1 > 0.05 and delY1 < 0.35:
-                reward = 1#50
+                reward = 5
             else:
                 reward = 1
         else:
@@ -113,20 +113,23 @@ class flappybot:
 
 
         # Epsilon-greedy strategy for first few iterations
+        q_vals = self.predict(curr_state)[0]
         if self.train and random.random() < self.epsilon:
-            action = 0 if random.random() < 0.7 else 1
+            action = 0 if random.random() < 0.95 else 1
+            act_type = "action: rand" + str(action)
         else:
-            q_vals = self.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1
-            print("Q = {:03.2f} {:03.2f} | ".format(q_vals[0], q_vals[1]), \
-                    "epsilon = {:07.6f} | ".format(self.epsilon), "reward = {: 5d} | ".format(reward), \
-                    "score = {:4d} | ".format(score), "iter_count = {:6d} | ".format(self.iter_count), \
-                    "episode = {:5d} | ".format(self.episode), "state =", curr_state)
+            act_type = "action: qval" + str(action)
+        
+        print(act_type, " | Q = {:03.2f} {:03.2f} | ".format(q_vals[0], q_vals[1]), \
+                "epsilon = {:07.6f} | ".format(self.epsilon), "reward = {: 5d} | ".format(reward), \
+                "score = {:4d} | ".format(score), "iter_count = {:6d} | ".format(self.iter_count), \
+                "episode = {:5d} | ".format(self.episode), "state =", curr_state)
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
             if self.epsilon > MIN_EPSILON:
-                self.epsilon *= (1 - (self.iter_count/MAX_EPSILON_ITERS))
+                self.epsilon *= (1 - ((self.iter_count/MAX_EPSILON_ITERS)**2))
 
         if self.train:
             self.remember(self.prev_state, self.prev_action, reward, curr_state)
