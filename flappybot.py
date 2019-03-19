@@ -22,7 +22,7 @@ class flappybot:
         self.gamma = 0.99
         self.iter_count = 0
         self.episode = 1
-        self.lr = 0.01
+        self.lr = 0.00025
         self.scores = []
 
         # Initialize memory
@@ -35,8 +35,10 @@ class flappybot:
             self.memory.append((rand_state, rand_action, rand_reward, rand_state_n))
 
         if load:
+            print("Loading model...")
             self.model = load_model('flappybot.h5')
         else:
+            print("Creating model...")
             # model
             self.model = Sequential()
             self.model.add(Dense(units=32, activation='relu', input_dim=INPUT_DIM))
@@ -116,10 +118,10 @@ class flappybot:
         else:
             q_vals = self.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1
-            print("Q = {:03.2f} {:03.2f}".format(q_vals[0], q_vals[1]), \
-                    "epsilon = {:07.6f}".format(self.epsilon), "reward = {: 4d}".format(reward), \
-                    "score = {:4d}".format(score), "iter_count = {:6d}".format(self.iter_count), \
-                    "episode = {:5d}".format(self.episode), "state =", curr_state)
+            print("Q = {:03.2f} {:03.2f} | ".format(q_vals[0], q_vals[1]), \
+                    "epsilon = {:07.6f} | ".format(self.epsilon), "reward = {: 5d} | ".format(reward), \
+                    "score = {:4d} | ".format(score), "iter_count = {:6d} | ".format(self.iter_count), \
+                    "episode = {:5d} | ".format(self.episode), "state =", curr_state)
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
