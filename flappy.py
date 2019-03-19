@@ -9,8 +9,8 @@ import flappybot
 
 BOT = True
 TRAIN = True
-DISPLAY = True
-LOAD_MODEL = True
+DISPLAY = False
+LOAD_MODEL = False
 
 bot = None
 max_score = 0
