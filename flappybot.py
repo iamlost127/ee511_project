@@ -7,9 +7,9 @@ from keras.layers import Dense, Activation, Dropout
 from keras import optimizers
 from keras.models import load_model
 
-MAX_EPSILON_ITERS = 100000
+MAX_EPSILON_ITERS = 1000000
 MIN_EPSILON = 0.1
-MEM_SIZE = 100
+MEM_SIZE = 1000
 BATCH_SIZE = 32
 IN_SAMPLES = 4
 
@@ -40,13 +40,11 @@ class flappybot:
             # model
             self.model = Sequential()
             self.model.add(Dense(units=32, activation='relu', input_dim=INPUT_DIM))
-            self.model.add(Dropout(0.1))
             self.model.add(Dense(units=32, activation='relu'))
-            self.model.add(Dropout(0.1))
             self.model.add(Dense(units=2, activation='softmax'))
 
             # optimizer
-            optimizer = optimizers.Adam(lr=self.lr)
+            optimizer = optimizers.RMSprop(lr=self.lr)
             self.model.compile(optimizer=optimizer, loss='mse')
 
         self.train = train
@@ -62,8 +60,14 @@ class flappybot:
         batch = []
         i = 0
         while(len(batch) < BATCH_SIZE):
-            if random.random() < (abs(self.memory[i][2])/1000):
+            if abs(self.memory[i][2]) < 100:
+                sampling_prob = 0.1
+            else:
+                sampling_prob = abs(self.memory[i][2])/2000
+
+            if random.random() < sampling_prob:
                 batch.append(self.memory[i])
+
             i = (i + 1) % len(self.memory)
 
         for (state, action, reward, state_n) in batch:

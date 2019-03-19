@@ -10,7 +10,7 @@ import flappybot
 BOT = True
 TRAIN = True
 DISPLAY = False
-LOAD_MODEL = True
+LOAD_MODEL = False
 
 bot = None
 max_score = 0
@@ -18,7 +18,7 @@ max_score = 0
 FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
-PIPEGAPSIZE  = 200 # gap between upper and lower part of pipe
+PIPEGAPSIZE  = 150 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
