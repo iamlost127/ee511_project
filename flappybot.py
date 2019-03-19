@@ -113,7 +113,6 @@ class flappybot:
         # Epsilon-greedy strategy for first few iterations
         if self.train and random.random() < self.epsilon:
             action = 0 if random.random() < 0.7 else 1
-            self.iter_count += 1
         else:
             q_vals = self.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1

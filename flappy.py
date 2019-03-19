@@ -260,7 +260,7 @@ def mainGame(movementInfo):
                     playerFlapped = True
                     SOUNDS['wing'].play()
 
-        delX = (lowerPipes[0]['x'] - playerx) / SCREENWIDTH
+        delX = (lowerPipes[0]['x'] - playerx) / (SCREENWIDTH + 200)
         delY1 = (lowerPipes[0]['y'] - playery) / SCREENHEIGHT
         velY = playerVelY / playerMaxVelY
 
