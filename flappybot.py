@@ -37,6 +37,7 @@ class flappybot:
         if load:
             print("Loading model...")
             self.model = load_model('flappybot.h5')
+            self.epsilon = MIN_EPSILON
         else:
             print("Creating model...")
             # model
