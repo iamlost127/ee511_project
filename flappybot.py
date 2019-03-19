@@ -117,9 +117,10 @@ class flappybot:
         else:
             q_vals = self.predict(curr_state)[0]
             action = 0 if q_vals[0] > q_vals[1] else 1
-            print("Qs =", q_vals[0], q_vals[1], "iter_count =", self.iter_count, \
-                    "epsilon =", self.epsilon, "state =", curr_state, "reward =", reward, \
-                    "score =", score, "episode =", self.episode)
+            print("Q = {:03.2f} {:03.2f}" % q_vals[0], q_vals[1], \
+                    "epsilon = {:07.6f}" % self.epsilon, "reward = {: 4d}" % reward, \
+                    "score = {:4d}" % score, "iter_count = {:6d}" % self.iter_count, \
+                    "episode = {:5d}" % self.episode, "state =", curr_state)
 
         if self.iter_count < MAX_EPSILON_ITERS:
             self.iter_count += 1
