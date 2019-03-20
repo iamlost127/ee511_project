@@ -9,7 +9,7 @@ import flappybot
 
 BOT = True
 TRAIN = True
-DISPLAY = True
+DISPLAY = False
 LOAD_MODEL = False
 
 bot = None
@@ -376,7 +376,6 @@ def showGameOverScreen(crashInfo):
     upperPipes, lowerPipes = crashInfo['upperPipes'], crashInfo['lowerPipes']
 
     if BOT:
-        SOUNDS['hit'].play()
         if score > max_score:
             max_score = score
 
